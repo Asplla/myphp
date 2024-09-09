@@ -8,7 +8,7 @@ define('IN_API', true);
 require_once "function/function_common.php";
 
 $mod = trim($_GET['mod'] ?? '');
-$mod = in_array($mod, array('user')) ? $mod : "index";
+$mod = in_array($mod, array('releases')) ? $mod : "index";
 
 require_once "module/".$mod.".php";
 
