@@ -34,6 +34,7 @@ if ($err) {
 }
 
 $data = json_decode($response, true);
-return_json('200', 'success', $response);
+echo $response;
+//return_json('200', 'success', $response);
 
 ?>
