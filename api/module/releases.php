@@ -25,7 +25,7 @@ $response = curl_get($url);
 $data = json_decode($response, true);
 
 $info = array(
-  'version' => $data['target_commitish'],
+  'version' => $data['tag_name'],
 );
 return_json('200', 'success', $info);
 
