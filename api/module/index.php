@@ -8,7 +8,6 @@ if(!defined('IN_API')) {
 	exit('Access Denied');
 }
 
-$mod = 
 $json = array(
   'time' => time(),
   'date' => date('Y-m-d'),
