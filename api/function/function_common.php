@@ -32,6 +32,7 @@ function curl_post($url, $postData) {
   // 设置cURL选项
   curl_setopt($ch, CURLOPT_URL, $url); // URL
   curl_setopt($log, CURLOPT_POST, true); // POST请求
+  curl_setopt($ch, CURLOPT_USERAGENT, 'WXHUB-API');
   curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData)); // POST数据
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // 返回响应，而不直接输出
 
@@ -53,6 +54,7 @@ function curl_get($url) {
   curl_setopt($ch, CURLOPT_URL, $url); // URL
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // 将响应作为字符串返回
   curl_setopt($ch, CURLOPT_HEADER, false); // 不需要头部信息
+  curl_setopt($ch, CURLOPT_USERAGENT, 'WXHUB-API');
 
   // 执行GET请求，获取响应内容
   $response = curl_exec($ch);
