@@ -34,6 +34,6 @@ if ($err) {
 }
 
 $data = json_decode($response, true);
-return_json('200', 'success', $data['tag_name'];);
+return_json('200', 'success', array('version' => $data['tag_name']));
 
 ?>
