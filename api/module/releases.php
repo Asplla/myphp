@@ -21,18 +21,7 @@ if(!$repo) {
 
 $url = "https://api.github.com/repos/".$user."/".$repo."/releases/latest";
 
-$curl = curl_init($url);
-curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-
-$response = curl_exec($curl);
-$err = curl_error($curl);
-
-curl_close($curl);
-
-if ($err) {
-  return_json('401', $err);
-}
-
+$response = curl_get($url);
 $data = json_decode($response, true);
 echo $response;
 //return_json('200', 'success', $response);
