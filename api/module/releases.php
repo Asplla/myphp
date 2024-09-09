@@ -23,6 +23,10 @@ $url = "https://api.github.com/repos/".$user."/".$repo."/releases/latest";
 
 $response = curl_get($url);
 $data = json_decode($response, true);
-return_json('200', 'success', $data);
+
+$info = array(
+  'version' => $data['target_commitish'],
+);
+return_json('200', 'success', $info);
 
 ?>
