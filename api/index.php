@@ -1,7 +1,15 @@
 <?php
-$json = array(
-  'time' => time(),
-  'date' => date('Y-m-d'),
-  'tech' => 'wxhub api'
-);
-echo json_encode($json);
+/**
+ *	Powered by wxss.fit
+ *  Email:minbbs@qq.com
+ */
+
+define('IN_API', true);
+require_once "function/function_common.php";
+
+$mod = trim($_GET['mod']);
+$mod = in_array($mod, array('user')) ? $mod : "index";
+
+require_once "module/".$mod.".php";
+
+?>
