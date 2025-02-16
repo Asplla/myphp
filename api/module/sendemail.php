@@ -141,6 +141,18 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
     $email = $_GET['email'] ?? '';
     $message = $_GET['message'] ?? '';
 
+    if (!$name) {
+        return_json('301', '请填写姓名');
+    }
+
+    if (!$email) {
+        return_json('301', '请填写邮箱');
+    }
+
+    if (!$message) {
+        return_json('301', '请填写消息');
+    }
+
     // HTML邮件模板
     $email_template = <<<HTML
     <!DOCTYPE html>
@@ -195,22 +207,13 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
         );
 
         if ($result) {
-            echo json_encode([
-                'status' => 'success',
-                'message' => '邮件发送成功！'
-            ]);
+            return_json('200', '邮件发送成功');
         } else {
             throw new Exception($smtp->getError());
         }
     } catch (Exception $e) {
-        echo json_encode([
-            'status' => 'error',
-            'message' => "邮件发送失败: " . $e->getMessage()
-        ]);
+        return_json('301', '邮件发送失败: ' . $e->getMessage());
     }
 } else {
-    echo json_encode([
-        'status' => 'error',
-        'message' => '无效的请求方法'
-    ]);
+    return_json('301', '无效的请求方法');
 }
