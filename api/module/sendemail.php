@@ -196,8 +196,8 @@ $email_template = <<<HTML
 HTML;
 
 try {
-    // 从配置文件获取SMTP设置
-    $smtp_config = require 'config/smtp_config.php';
+    // 修改配置文件路径，使用绝对路径
+    $smtp_config = require __DIR__ . '/../config/smtp_config.php';
 
     // SMTP配置
     $smtp = new SMTPClient(
