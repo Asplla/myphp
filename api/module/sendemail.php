@@ -181,18 +181,10 @@ class SMTPClient
     }
 }
 
-// 获取POST的JSON数据
-$json = file_get_contents('php://input');
-$data = json_decode($json, true);
-
-if (json_last_error() !== JSON_ERROR_NONE) {
-    return_json('400', 'Invalid JSON data');
-}
-
-// 获取并清理输入
-$name = trim(strip_tags($data['name'] ?? ''));
-$email = trim(strip_tags($data['email'] ?? ''));
-$message = trim(strip_tags($data['message'] ?? ''));
+// 获取POST数据
+$name = trim(strip_tags($_POST['name'] ?? ''));
+$email = trim(strip_tags($_POST['email'] ?? ''));
+$message = trim(strip_tags($_POST['message'] ?? ''));
 
 // 基本验证
 if (!$name || !$email || !$message) {
