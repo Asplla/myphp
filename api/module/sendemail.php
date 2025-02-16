@@ -1,4 +1,5 @@
 <?php
+
 class SMTPClient
 {
     private $smtp_host;
@@ -134,24 +135,84 @@ class SMTPClient
     }
 }
 
-// 检查是否是GET请求
+// 安全检查函数
+function security_check()
+{
+    // 检查请求来源
+    $allowed_origins = [
+        'wai-mao.vercel.app',
+        // 添加其他允许的域名
+    ];
+
+    $referer = $_SERVER['HTTP_REFERER'] ?? '';
+    $origin = parse_url($referer, PHP_URL_HOST);
+
+    if (!in_array($origin, $allowed_origins)) {
+        return_json('403', 'Access denied: Invalid origin');
+    }
+
+    // 检查是否超过频率限制
+    $ip = $_SERVER['REMOTE_ADDR'];
+    $cache_key = 'email_limit_' . $ip;
+
+    // 使用缓存系统检查频率（这里假设您有缓存系统）
+    // 如果没有缓存系统，可以用文件或数据库来实现
+    $current_count = get_cache($cache_key) ?? 0;
+
+    if ($current_count >= 5) { // 每小时最多5次
+        return_json('429', 'Too many requests. Please try again later.');
+    }
+
+    // 更新计数器
+    set_cache($cache_key, $current_count + 1, 3600); // 1小时过期
+}
+
+// 验证输入函数
+function validate_input($name, $email, $message)
+{
+    // 验证姓名
+    if (strlen($name) < 2 || strlen($name) > 50) {
+        return_json('301', 'Name must be between 2 and 50 characters');
+    }
+
+    // 验证邮箱
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return_json('301', 'Invalid email format');
+    }
+
+    // 验证消息
+    if (strlen($message) < 10 || strlen($message) > 1000) {
+        return_json('301', 'Message must be between 10 and 1000 characters');
+    }
+
+    // 检查是否包含垃圾邮件关键词
+    $spam_keywords = ['casino', 'viagra', 'lottery', 'winner', 'spam'];
+    foreach ($spam_keywords as $keyword) {
+        if (stripos($message, $keyword) !== false) {
+            return_json('301', 'Message contains prohibited content');
+        }
+    }
+
+    return true;
+}
+
+// 在原有的GET请求处理之前添加安全检查
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
-    // 获取URL参数数据
-    $name = $_GET['name'] ?? '';
-    $email = $_GET['email'] ?? '';
-    $message = $_GET['message'] ?? '';
+    // 执行安全检查
+    security_check();
 
-    if (!$name) {
-        return_json('301', 'Please enter your name');
+    // 获取并清理输入
+    $name = trim(strip_tags($_GET['name'] ?? ''));
+    $email = trim(strip_tags($_GET['email'] ?? ''));
+    $message = trim(strip_tags($_GET['message'] ?? ''));
+
+    // 基本验证
+    if (!$name || !$email || !$message) {
+        return_json('301', 'All fields are required');
     }
 
-    if (!$email) {
-        return_json('301', 'Please enter your email');
-    }
-
-    if (!$message) {
-        return_json('301', 'Please enter your message');
-    }
+    // 详细验证
+    validate_input($name, $email, $message);
 
     // 先获取时间和年份
     $current_time = date('F j, Y h:i A');
@@ -206,20 +267,23 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
     HTML;
 
     try {
+        // 从配置文件获取SMTP设置
+        $smtp_config = require 'config/smtp_config.php';
+
         // SMTP配置
         $smtp = new SMTPClient(
-            'smtp.qq.com',  // SMTP服务器地址
-            465,                  // SMTP端口
-            '76005434@qq.com',  // SMTP用户名
-            'axwwaahdiatxbihh'      // SMTP密码
+            $smtp_config['host'],
+            $smtp_config['port'],
+            $smtp_config['username'],
+            $smtp_config['password']
         );
 
         // 发送邮件
         $result = $smtp->send(
-            '76005434@qq.com',     // 发件人
-            'wangxu_cn@icloud.com',       // 收件人
-            'New submission from: ' . $name,  // 主题
-            $email_template                // 内容
+            $smtp_config['from_email'],
+            $smtp_config['to_email'],
+            'New submission from: ' . $name,
+            $email_template
         );
 
         if ($result) {
