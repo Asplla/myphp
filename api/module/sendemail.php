@@ -153,6 +153,10 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
         return_json('301', '请填写消息');
     }
 
+    // 先获取时间和年份
+    $current_time = date('F j, Y h:i A');
+    $current_year = date('Y');
+
     // HTML邮件模板
     $email_template = <<<HTML
     <!DOCTYPE html>
@@ -190,11 +194,11 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                 
                 <div style="margin: 40px 0 0; padding-top: 20px; border-top: 1px solid #eaeaea;">
                     <p style="margin: 0; font-size: 12px; color: #666;">This email was sent from your contact form. Please do not reply directly to this email.</p>
-                    <p style="margin: 10px 0 0; font-size: 12px; color: #666;">Sent at: " . date('F j, Y h:i A') . "</p>
+                    <p style="margin: 10px 0 0; font-size: 12px; color: #666;">Sent at: {$current_time}</p>
                 </div>
             </div>
             <div style="margin-top: 25px; text-align: center; font-size: 12px; color: #666;">
-                <p style="margin: 0;">© " . date('Y') . " Your Company. All rights reserved.</p>
+                <p style="margin: 0;">© {$current_year} Your Company. All rights reserved.</p>
             </div>
         </div>
     </body>
