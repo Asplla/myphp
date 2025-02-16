@@ -159,30 +159,42 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
     <html>
     <head>
         <meta charset="UTF-8">
-        <title>新的联系表单消息</title>
+        <title>New form submission on Order</title>
     </head>
-    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; border: 1px solid #ddd;">
-            <h2 style="color: #007bff; margin-bottom: 20px;">新的联系表单消息</h2>
-            
-            <div style="margin-bottom: 15px;">
-                <strong style="color: #495057;">发送者姓名：</strong>
-                <p style="margin: 5px 0;">{$name}</p>
+    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif; background-color: #f6f6f6;">
+        <div style="max-width: 600px; margin: 0 auto; padding: 45px 20px;">
+            <div style="margin-bottom: 30px; text-align: left;">
+                <svg height="20" viewBox="0 0 284 65" fill="var(--geist-foreground)" style="color: #000;">
+                    <path d="M141.68 16.25c-11.04 0-19 7.2-19 18s8.96 18 20 18c6.67 0 12.55-2.64 16.19-7.09l-7.65-4.42c-2.02 2.21-5.09 3.5-8.54 3.5-4.79 0-8.86-2.5-10.37-6.5h28.02c.22-1.12.35-2.28.35-3.5 0-10.79-7.96-17.99-19-17.99zm-9.46 14.5c1.25-3.99 4.67-6.5 9.45-6.5 4.79 0 8.21 2.51 9.45 6.5h-18.9zm117.14-14.5c-11.04 0-19 7.2-19 18s8.96 18 20 18c6.67 0 12.55-2.64 16.19-7.09l-7.65-4.42c-2.02 2.21-5.09 3.5-8.54 3.5-4.79 0-8.86-2.5-10.37-6.5h28.02c.22-1.12.35-2.28.35-3.5 0-10.79-7.96-17.99-19-17.99zm-9.45 14.5c1.25-3.99 4.67-6.5 9.45-6.5 4.79 0 8.21 2.51 9.45 6.5h-18.9zm-39.03 3.5c0 6 3.92 10 10 10 4.12 0 7.21-1.87 8.8-4.92l7.68 4.43c-3.18 5.3-9.14 8.49-16.48 8.49-11.05 0-19-7.2-19-18s7.96-18 19-18c7.34 0 13.29 3.19 16.48 8.49l-7.68 4.43c-1.59-3.05-4.68-4.92-8.8-4.92-6.07 0-10 4-10 10zm82.48-29v46h-9v-46h9zM37.59.25l36.95 64H.64l36.95-64zm92.38 5l-27.71 48-27.71-48h10.39l17.32 30 17.32-30h10.39zm58.91 12v9.69c-1-.29-2.06-.49-3.2-.49-5.81 0-10 4-10 10v14.8h-9v-34h9v9.2c0-5.08 5.91-9.2 13.2-9.2z"></path>
+                </svg>
             </div>
-            
-            <div style="margin-bottom: 15px;">
-                <strong style="color: #495057;">发送者邮箱：</strong>
-                <p style="margin: 5px 0;">{$email}</p>
+            <div style="background: #fff; border-radius: 5px; padding: 40px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <h1 style="margin: 0 0 30px; font-size: 24px; font-weight: 600; color: #000;">New Contact Form Submission</h1>
+                
+                <div style="margin: 0 0 30px;">
+                    <p style="margin: 0 0 5px; font-size: 14px; color: #666;">FROM</p>
+                    <p style="margin: 0; font-size: 16px; color: #000;">{$name}</p>
+                </div>
+                
+                <div style="margin: 0 0 30px;">
+                    <p style="margin: 0 0 5px; font-size: 14px; color: #666;">EMAIL</p>
+                    <p style="margin: 0; font-size: 16px; color: #000;">{$email}</p>
+                </div>
+                
+                <div style="margin: 0 0 30px;">
+                    <p style="margin: 0 0 5px; font-size: 14px; color: #666;">MESSAGE</p>
+                    <div style="margin: 0; padding: 15px; background: #f6f6f6; border-radius: 5px;">
+                        <p style="margin: 0; font-size: 16px; color: #000; white-space: pre-line; line-height: 1.6;">{$message}</p>
+                    </div>
+                </div>
+                
+                <div style="margin: 40px 0 0; padding-top: 20px; border-top: 1px solid #eaeaea;">
+                    <p style="margin: 0; font-size: 12px; color: #666;">This email was sent from your contact form. Please do not reply directly to this email.</p>
+                    <p style="margin: 10px 0 0; font-size: 12px; color: #666;">Sent at: " . date('F j, Y h:i A') . "</p>
+                </div>
             </div>
-            
-            <div style="margin-bottom: 15px;">
-                <strong style="color: #495057;">消息内容：</strong>
-                <p style="margin: 5px 0; white-space: pre-line; background-color: #fff; padding: 10px; border-radius: 3px;">{$message}</p>
-            </div>
-            
-            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #6c757d;">
-                <p>此邮件由系统自动发送，请勿直接回复。</p>
-                <p>发送时间：" . date('Y-m-d H:i:s') . "</p>
+            <div style="margin-top: 25px; text-align: center; font-size: 12px; color: #666;">
+                <p style="margin: 0;">© " . date('Y') . " Your Company. All rights reserved.</p>
             </div>
         </div>
     </body>
@@ -202,7 +214,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
         $result = $smtp->send(
             '76005434@qq.com',     // 发件人
             'wangxu_cn@icloud.com',       // 收件人
-            '新的联系表单消息来自: ' . $name,  // 主题
+            'New submission from: ' . $name,  // 主题
             $email_template                // 内容
         );
 
