@@ -30,25 +30,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     }
 }
 
-// 设置响应类型
-header('Content-Type: application/json; charset=utf-8');
-
 // 检查是否是允许的来源
 if (!in_array($origin, $smtp_config['allowed_origins'])) {
-    echo json_encode([
-        'status' => '403',
-        'message' => 'Origin not allowed'
-    ]);
-    exit;
+    return_json('403', 'Origin not allowed');
 }
 
 // 只允许POST请求
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode([
-        'status' => '405',
-        'message' => 'Method not allowed. Only POST is accepted.'
-    ]);
-    exit;
+    return_json('405', 'Method not allowed. Only POST is accepted.');
 }
 
 class SMTPClient
@@ -216,12 +205,7 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = "Invalid email forma
 if (strlen($message) > 1000) $errors[] = "Message is too long (max 1000 characters)";
 
 if (!empty($errors)) {
-    echo json_encode([
-        'status' => '400',
-        'message' => 'Validation failed',
-        'errors' => $errors
-    ]);
-    exit;
+    return_json('400', 'Validation failed', ['errors' => $errors]);
 }
 
 // 获取当前时间和年份
@@ -299,17 +283,11 @@ try {
     );
 
     if ($result) {
-        echo json_encode([
-            'status' => '200',
-            'message' => 'Email sent successfully'
-        ]);
+        return_json('200', 'Email sent successfully');
     } else {
         throw new Exception($smtp->getError());
     }
 } catch (Exception $e) {
     error_log("Email sending failed: " . $e->getMessage());
-    echo json_encode([
-        'status' => '500',
-        'message' => 'Failed to send email. Please try again later.'
-    ]);
+    return_json('500', 'Failed to send email. Please try again later.');
 }

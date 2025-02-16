@@ -1,23 +1,28 @@
 <?php
+
 /**
  *	Powered by wxss.fit
  *  Email:minbbs@qq.com
  */
 
-if(!defined('IN_API')) {
-	exit('Access Denied');
+if (!defined('IN_API')) {
+  exit('Access Denied');
 }
 
 // 输出 Json
-function return_json($code, $msg, $data = '') {
+function return_json($code, $msg, $data = '')
+{
   //if($code != 0){
   //  header('HTTP/1.1 400 Bad Request');
   //}
+  // 设置响应类型
+  header('Content-Type: application/json; charset=utf-8');
+
   $json_arr = array(
     'code' => $code,
     'msg' => $msg
   );
-  if($data){
+  if ($data) {
     $json_arr['data'] = $data;
   }
   echo json_encode($json_arr);
@@ -25,10 +30,11 @@ function return_json($code, $msg, $data = '') {
 }
 
 // post
-function curl_post($url, $postData) {
+function curl_post($url, $postData)
+{
   // 初始化cURL会话
   $ch = curl_init();
-  
+
   // 设置cURL选项
   curl_setopt($ch, CURLOPT_URL, $url); // URL
   curl_setopt($log, CURLOPT_POST, true); // POST请求
@@ -38,17 +44,18 @@ function curl_post($url, $postData) {
 
   // 执行cURL会话
   $response = curl_exec($ch);
-  
+
   // 关闭cURL会话
   curl_close($ch);
-  
+
   // 返回响应内容
   return $response;
 }
 // get
-function curl_get($url) {
+function curl_get($url)
+{
   // 初始化cURL会话
-  $ch = curl_init(); 
+  $ch = curl_init();
 
   // 设置cURL选项
   curl_setopt($ch, CURLOPT_URL, $url); // URL
@@ -65,4 +72,3 @@ function curl_get($url) {
   // 返回获取的内容
   return $response;
 }
-?>
