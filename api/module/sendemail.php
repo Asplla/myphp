@@ -1,4 +1,15 @@
 <?php
+// 添加CORS头信息
+header('Access-Control-Allow-Origin: https://wai-mao.vercel.app');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Max-Age: 86400'); // 24小时
+
+// 处理预检请求
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    header('HTTP/1.1 200 OK');
+    exit();
+}
 
 class SMTPClient
 {
