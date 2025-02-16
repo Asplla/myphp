@@ -18,7 +18,7 @@ class SMTPClient
 
     private function connect()
     {
-        $this->socket = fsockopen($this->smtp_host, $this->smtp_port, $errno, $errstr, 30);
+        $this->socket = fsockopen("ssl://" . $this->smtp_host, $this->smtp_port, $errno, $errstr, 30);
         if (!$this->socket) {
             $this->error = "连接失败: $errstr ($errno)";
             return false;
