@@ -169,13 +169,27 @@ class SMTPClient
     }
 }
 
-// 获取URL参数数据
-$name = $_GET['name'] ?? '';
-$email = $_GET['email'] ?? '';
-$message = $_GET['message'] ?? '';
+// 获取POST的JSON数据
+$json = file_get_contents('php://input');
+$data = json_decode($json, true);
 
+if (json_last_error() !== JSON_ERROR_NONE) {
+    return_json('400', 'Invalid JSON data');
+}
+
+// 获取并清理输入
+$name = trim(strip_tags($data['name'] ?? ''));
+$email = trim(strip_tags($data['email'] ?? ''));
+$message = trim(strip_tags($data['message'] ?? ''));
+
+// 基本验证
 if (!$name || !$email || !$message) {
     return_json('301', 'All fields are required');
+}
+
+// 验证邮箱格式
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    return_json('301', 'Invalid email format');
 }
 
 // 先获取时间和年份
