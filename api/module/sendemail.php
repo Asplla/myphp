@@ -34,8 +34,23 @@ class SMTPClient
     private function sendCommand($command, $expectedCode)
     {
         fputs($this->socket, $command . "\r\n");
-        $response = fgets($this->socket, 515);
-        return substr($response, 0, 3) == $expectedCode;
+        $response = '';
+
+        // 读取所有响应
+        while ($line = fgets($this->socket, 515)) {
+            $response .= $line;
+            // 如果行以 <CRLF> 结束，说明响应结束
+            if (substr($line, -2) === "\r\n") {
+                break;
+            }
+        }
+
+        // 保存最后的响应用于调试
+        $this->error = "命令: $command\n响应: $response";
+
+        // 获取响应码（前3个字符）
+        $code = substr($response, 0, 3);
+        return $code == $expectedCode;
     }
 
     public function send($from, $to, $subject, $body)
@@ -44,27 +59,35 @@ class SMTPClient
             return false;
         }
 
-        // EHLO command
-        if (!$this->sendCommand("EHLO " . $_SERVER['HTTP_HOST'], '250')) {
-            $this->error = "EHLO 命令失败";
+        // EHLO command - 读取所有响应直到结束
+        fputs($this->socket, "EHLO " . $_SERVER['HTTP_HOST'] . "\r\n");
+        $response = '';
+        while ($line = fgets($this->socket, 515)) {
+            $response .= $line;
+            if (substr($line, 3, 1) === ' ') {
+                break;
+            }
+        }
+        if (substr($response, 0, 3) !== '250') {
+            $this->error = "EHLO 命令失败: " . $response;
             return false;
         }
 
         // AUTH LOGIN
         if (!$this->sendCommand("AUTH LOGIN", '334')) {
-            $this->error = "AUTH LOGIN 失败";
+            $this->error = "AUTH LOGIN 失败: " . $this->error;
             return false;
         }
 
         // Send username
         if (!$this->sendCommand(base64_encode($this->smtp_user), '334')) {
-            $this->error = "用户名验证失败";
+            $this->error = "用户名验证失败: " . $this->error;
             return false;
         }
 
         // Send password
         if (!$this->sendCommand(base64_encode($this->smtp_pass), '235')) {
-            $this->error = "密码验证失败";
+            $this->error = "密码验证失败: " . $this->error;
             return false;
         }
 
