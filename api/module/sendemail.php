@@ -1,47 +1,37 @@
 <?php
-// 关闭错误报告，防止意外输出
+// 关闭错误报告，防止敏感信息泄露
 error_reporting(0);
 ini_set('display_errors', 0);
 
 // 清除之前的输出缓冲
 if (ob_get_level()) ob_end_clean();
 
-// 允许的域名列表
-$allowed_origins = [
-    'https://wai-mao.vercel.app',
-    'http://localhost'  // 开发环境
-];
+// 加载配置文件
+$smtp_config = require __DIR__ . '/../config/smtp_config.php';
 
-// 获取请求头中的Origin
+// 设置CORS
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-
-// 设置CORS头
-if (in_array($origin, $allowed_origins)) {
+if (in_array($origin, $smtp_config['allowed_origins'])) {
     header("Access-Control-Allow-Origin: $origin");
-    header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
-    header("Access-Control-Allow-Headers: Content-Type, X-Requested-With");
-    header("Access-Control-Allow-Credentials: true");
+    header("Access-Control-Allow-Methods: POST, OPTIONS");
+    header("Access-Control-Allow-Headers: Content-Type");
     header("Access-Control-Max-Age: 86400");
 }
 
-// 响应预检请求
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-    if (in_array($origin, $allowed_origins)) {
-        header("HTTP/1.1 200 OK");
-    } else {
-        header("HTTP/1.1 403 Forbidden");
-    }
+// 处理预检请求
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    header("HTTP/1.1 200 OK");
     exit;
 }
 
 // 设置响应类型
 header('Content-Type: application/json; charset=utf-8');
 
-// 检查是否是允许的来源
-if (!in_array($origin, $allowed_origins)) {
+// 只允许POST请求
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode([
-        'status' => '403',
-        'message' => 'Origin not allowed'
+        'status' => '405',
+        'message' => 'Method not allowed. Only POST is accepted.'
     ]);
     exit;
 }
@@ -54,6 +44,7 @@ class SMTPClient
     private $smtp_pass;
     private $socket;
     private $error;
+    private $debug = false;
 
     public function __construct($host, $port, $user, $pass)
     {
@@ -63,16 +54,31 @@ class SMTPClient
         $this->smtp_pass = $pass;
     }
 
+    public function setDebug($debug)
+    {
+        $this->debug = $debug;
+        return $this;
+    }
+
+    private function log($message)
+    {
+        if ($this->debug) {
+            error_log("[SMTP] " . $message);
+        }
+    }
+
     private function connect()
     {
-        $this->socket = fsockopen("ssl://" . $this->smtp_host, $this->smtp_port, $errno, $errstr, 30);
+        $this->socket = @fsockopen("ssl://" . $this->smtp_host, $this->smtp_port, $errno, $errstr, 30);
         if (!$this->socket) {
             $this->error = "Connection failed: $errstr ($errno)";
+            $this->log($this->error);
             return false;
         }
         $response = fgets($this->socket, 515);
         if (substr($response, 0, 3) != '220') {
             $this->error = "SMTP server connection error: " . $response;
+            $this->log($this->error);
             return false;
         }
         return true;
@@ -181,22 +187,29 @@ class SMTPClient
     }
 }
 
-// 获取POST数据
+// 获取并清理POST数据
 $name = trim(strip_tags($_POST['name'] ?? ''));
 $email = trim(strip_tags($_POST['email'] ?? ''));
 $message = trim(strip_tags($_POST['message'] ?? ''));
 
-// 基本验证
-if (!$name || !$email || !$message) {
-    return_json('301', 'All fields are required');
+// 输入验证
+$errors = [];
+if (empty($name)) $errors[] = "Name is required";
+if (empty($email)) $errors[] = "Email is required";
+if (empty($message)) $errors[] = "Message is required";
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = "Invalid email format";
+if (strlen($message) > 1000) $errors[] = "Message is too long (max 1000 characters)";
+
+if (!empty($errors)) {
+    echo json_encode([
+        'status' => '400',
+        'message' => 'Validation failed',
+        'errors' => $errors
+    ]);
+    exit;
 }
 
-// 验证邮箱格式
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    return_json('301', 'Invalid email format');
-}
-
-// 先获取时间和年份
+// 获取当前时间和年份
 $current_time = date('F j, Y h:i A');
 $current_year = date('Y');
 
@@ -249,10 +262,7 @@ $email_template = <<<HTML
 HTML;
 
 try {
-    // 修改配置文件路径，使用绝对路径
-    $smtp_config = require __DIR__ . '/../config/smtp_config.php';
-
-    // SMTP配置
+    // 创建SMTP客户端
     $smtp = new SMTPClient(
         $smtp_config['host'],
         $smtp_config['port'],
@@ -260,19 +270,31 @@ try {
         $smtp_config['password']
     );
 
+    // 开发环境启用调试
+    if (in_array($origin, ['http://localhost:3000', 'http://localhost'])) {
+        $smtp->setDebug(true);
+    }
+
     // 发送邮件
     $result = $smtp->send(
         $smtp_config['from_email'],
         $smtp_config['to_email'],
-        'New submission from: ' . $name,
+        'New Contact Form Message from ' . $name,
         $email_template
     );
 
     if ($result) {
-        return_json('200', 'Email sent successfully');
+        echo json_encode([
+            'status' => '200',
+            'message' => 'Email sent successfully'
+        ]);
     } else {
         throw new Exception($smtp->getError());
     }
 } catch (Exception $e) {
-    return_json('301', 'Failed to send email: ' . $e->getMessage());
+    error_log("Email sending failed: " . $e->getMessage());
+    echo json_encode([
+        'status' => '500',
+        'message' => 'Failed to send email. Please try again later.'
+    ]);
 }

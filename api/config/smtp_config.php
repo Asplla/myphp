@@ -11,8 +11,6 @@ return [
         'localhost:3000',
         '127.0.0.1',
         '127.0.0.1:3000',
-        'wangxucn.com',
-        'www.wangxucn.com',
-        'dev.wangxucn.com'
+        'wai-mao.vercel.app',
     ]
-]; 
+];
