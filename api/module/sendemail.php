@@ -14,18 +14,33 @@ $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if (in_array($origin, $smtp_config['allowed_origins'])) {
     header("Access-Control-Allow-Origin: $origin");
     header("Access-Control-Allow-Methods: POST, OPTIONS");
-    header("Access-Control-Allow-Headers: Content-Type");
-    header("Access-Control-Max-Age: 86400");
+    header("Access-Control-Allow-Headers: Content-Type, X-Requested-With");
+    header("Access-Control-Allow-Credentials: true");
+    header('Vary: Origin');  // 重要：告诉浏览器响应会根据Origin变化
 }
 
 // 处理预检请求
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    header("HTTP/1.1 200 OK");
-    exit;
+    if (in_array($origin, $smtp_config['allowed_origins'])) {
+        http_response_code(200);
+        exit();
+    } else {
+        http_response_code(403);
+        exit();
+    }
 }
 
 // 设置响应类型
 header('Content-Type: application/json; charset=utf-8');
+
+// 检查是否是允许的来源
+if (!in_array($origin, $smtp_config['allowed_origins'])) {
+    echo json_encode([
+        'status' => '403',
+        'message' => 'Origin not allowed'
+    ]);
+    exit;
+}
 
 // 只允许POST请求
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

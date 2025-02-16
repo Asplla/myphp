@@ -7,10 +7,10 @@ return [
     'from_email' => '76005434@qq.com',
     'to_email' => 'wangxu_cn@icloud.com',
     'allowed_origins' => [
-        'localhost',
-        'localhost:3000',
-        '127.0.0.1',
-        '127.0.0.1:3000',
-        'wai-mao.vercel.app',
+        'http://localhost',
+        'http://localhost:3000',
+        'https://wai-mao.vercel.app',
+        'http://127.0.0.1',
+        'http://127.0.0.1:3000'
     ]
 ];
