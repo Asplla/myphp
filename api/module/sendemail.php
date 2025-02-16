@@ -1,38 +1,50 @@
 <?php
-// 确保没有之前的输出
-ob_clean();
+// 关闭错误报告，防止意外输出
+error_reporting(0);
+ini_set('display_errors', 0);
 
-// 允许特定域名访问
-$allowed_origin = 'https://wai-mao.vercel.app';
+// 清除之前的输出缓冲
+if (ob_get_level()) ob_end_clean();
 
-// 检查请求来源
+// 允许的域名列表
+$allowed_origins = [
+    'https://wai-mao.vercel.app',
+    'http://localhost'  // 开发环境
+];
+
+// 获取请求头中的Origin
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if ($origin === $allowed_origin) {
+
+// 设置CORS头
+if (in_array($origin, $allowed_origins)) {
     header("Access-Control-Allow-Origin: $origin");
-    header('Access-Control-Allow-Credentials: true');
-    header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-    header('Access-Control-Allow-Headers: Content-Type');
-    header('Access-Control-Max-Age: 86400'); // 24小时
+    header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+    header("Access-Control-Allow-Headers: Content-Type, X-Requested-With");
+    header("Access-Control-Allow-Credentials: true");
+    header("Access-Control-Max-Age: 86400");
 }
 
-// 处理预检请求
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    if ($origin === $allowed_origin) {
-        header('HTTP/1.1 200 OK');
+// 响应预检请求
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    if (in_array($origin, $allowed_origins)) {
+        header("HTTP/1.1 200 OK");
     } else {
-        header('HTTP/1.1 403 Forbidden');
+        header("HTTP/1.1 403 Forbidden");
     }
-    exit();
+    exit;
 }
 
-// 如果不是允许的域名，拒绝访问
-if ($_SERVER['REQUEST_METHOD'] !== 'OPTIONS' && $origin !== $allowed_origin) {
-    header('HTTP/1.1 403 Forbidden');
-    exit('Access denied');
-}
-
-// 设置内容类型
+// 设置响应类型
 header('Content-Type: application/json; charset=utf-8');
+
+// 检查是否是允许的来源
+if (!in_array($origin, $allowed_origins)) {
+    echo json_encode([
+        'status' => '403',
+        'message' => 'Origin not allowed'
+    ]);
+    exit;
+}
 
 class SMTPClient
 {
