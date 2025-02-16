@@ -20,12 +20,12 @@ class SMTPClient
     {
         $this->socket = fsockopen("ssl://" . $this->smtp_host, $this->smtp_port, $errno, $errstr, 30);
         if (!$this->socket) {
-            $this->error = "连接失败: $errstr ($errno)";
+            $this->error = "Connection failed: $errstr ($errno)";
             return false;
         }
         $response = fgets($this->socket, 515);
         if (substr($response, 0, 3) != '220') {
-            $this->error = "SMTP服务器连接错误: " . $response;
+            $this->error = "SMTP server connection error: " . $response;
             return false;
         }
         return true;
@@ -46,7 +46,7 @@ class SMTPClient
         }
 
         // 保存最后的响应用于调试
-        $this->error = "命令: $command\n响应: $response";
+        $this->error = "Command: $command\nResponse: $response";
 
         // 获取响应码（前3个字符）
         $code = substr($response, 0, 3);
@@ -69,43 +69,43 @@ class SMTPClient
             }
         }
         if (substr($response, 0, 3) !== '250') {
-            $this->error = "EHLO 命令失败: " . $response;
+            $this->error = "EHLO command failed: " . $response;
             return false;
         }
 
         // AUTH LOGIN
         if (!$this->sendCommand("AUTH LOGIN", '334')) {
-            $this->error = "AUTH LOGIN 失败: " . $this->error;
+            $this->error = "AUTH LOGIN failed: " . $this->error;
             return false;
         }
 
         // Send username
         if (!$this->sendCommand(base64_encode($this->smtp_user), '334')) {
-            $this->error = "用户名验证失败: " . $this->error;
+            $this->error = "Username verification failed: " . $this->error;
             return false;
         }
 
         // Send password
         if (!$this->sendCommand(base64_encode($this->smtp_pass), '235')) {
-            $this->error = "密码验证失败: " . $this->error;
+            $this->error = "Password verification failed: " . $this->error;
             return false;
         }
 
         // MAIL FROM
         if (!$this->sendCommand("MAIL FROM:<{$from}>", '250')) {
-            $this->error = "MAIL FROM 命令失败";
+            $this->error = "MAIL FROM command failed";
             return false;
         }
 
         // RCPT TO
         if (!$this->sendCommand("RCPT TO:<{$to}>", '250')) {
-            $this->error = "RCPT TO 命令失败";
+            $this->error = "RCPT TO command failed";
             return false;
         }
 
         // DATA
         if (!$this->sendCommand("DATA", '354')) {
-            $this->error = "DATA 命令失败";
+            $this->error = "DATA command failed";
             return false;
         }
 
@@ -142,15 +142,15 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
     $message = $_GET['message'] ?? '';
 
     if (!$name) {
-        return_json('301', '请填写姓名');
+        return_json('301', 'Please enter your name');
     }
 
     if (!$email) {
-        return_json('301', '请填写邮箱');
+        return_json('301', 'Please enter your email');
     }
 
     if (!$message) {
-        return_json('301', '请填写消息');
+        return_json('301', 'Please enter your message');
     }
 
     // 先获取时间和年份
@@ -198,7 +198,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                 </div>
             </div>
             <div style="margin-top: 25px; text-align: center; font-size: 12px; color: #666;">
-                <p style="margin: 0;">© {$current_year} Your Company. All rights reserved.</p>
+                <p style="margin: 0;">© {$current_year} Vercel. All rights reserved.</p>
             </div>
         </div>
     </body>
@@ -223,13 +223,13 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
         );
 
         if ($result) {
-            return_json('200', '邮件发送成功');
+            return_json('200', 'Email sent successfully');
         } else {
             throw new Exception($smtp->getError());
         }
     } catch (Exception $e) {
-        return_json('301', '邮件发送失败: ' . $e->getMessage());
+        return_json('301', 'Failed to send email: ' . $e->getMessage());
     }
 } else {
-    return_json('301', '无效的请求方法');
+    return_json('301', 'Invalid request method');
 }
