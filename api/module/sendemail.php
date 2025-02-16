@@ -151,20 +151,16 @@ function security_check()
         return_json('403', 'Access denied: Invalid origin');
     }
 
-    // 检查是否超过频率限制
-    $ip = $_SERVER['REMOTE_ADDR'];
-    $cache_key = 'email_limit_' . $ip;
-
-    // 使用缓存系统检查频率（这里假设您有缓存系统）
-    // 如果没有缓存系统，可以用文件或数据库来实现
-    $current_count = get_cache($cache_key) ?? 0;
-
-    if ($current_count >= 5) { // 每小时最多5次
-        return_json('429', 'Too many requests. Please try again later.');
+    // 检查请求方法
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        return_json('405', 'Method not allowed. Only POST requests are accepted.');
     }
 
-    // 更新计数器
-    set_cache($cache_key, $current_count + 1, 3600); // 1小时过期
+    // 检查Content-Type
+    $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+    if (strpos($contentType, 'application/json') === false) {
+        return_json('400', 'Invalid Content-Type. Only application/json is accepted.');
+    }
 }
 
 // 验证输入函数
@@ -197,14 +193,22 @@ function validate_input($name, $email, $message)
 }
 
 // 在原有的GET请求处理之前添加安全检查
-if ($_SERVER["REQUEST_METHOD"] == "GET") {
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // 执行安全检查
     security_check();
 
+    // 获取POST的JSON数据
+    $json = file_get_contents('php://input');
+    $data = json_decode($json, true);
+
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        return_json('400', 'Invalid JSON data');
+    }
+
     // 获取并清理输入
-    $name = trim(strip_tags($_GET['name'] ?? ''));
-    $email = trim(strip_tags($_GET['email'] ?? ''));
-    $message = trim(strip_tags($_GET['message'] ?? ''));
+    $name = trim(strip_tags($data['name'] ?? ''));
+    $email = trim(strip_tags($data['email'] ?? ''));
+    $message = trim(strip_tags($data['message'] ?? ''));
 
     // 基本验证
     if (!$name || !$email || !$message) {
