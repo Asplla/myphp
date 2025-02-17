@@ -12,9 +12,9 @@ $smtp_config = require __DIR__ . '/../config/smtp_config.php';
 // 设置CORS
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if (in_array($origin, $smtp_config['allowed_origins'])) {
-    header("Access-Control-Allow-Origin: $origin");
-    header("Access-Control-Allow-Methods: POST, OPTIONS");
-    header("Access-Control-Allow-Headers: Content-Type, X-Requested-With");
+    header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+    header("Access-Control-Allow-Headers: Content-Type");
     header("Access-Control-Allow-Credentials: true");
     header('Vary: Origin');  // 重要：告诉浏览器响应会根据Origin变化
 }
