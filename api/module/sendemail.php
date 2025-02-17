@@ -5,82 +5,18 @@
  *  Email:minbbs@qq.com
  */
 
+// 关闭错误报告，防止敏感信息泄露
+error_reporting(0);
+ini_set('display_errors', 0);
+
+// 清除之前的输出缓冲
+if (ob_get_level()) ob_end_clean();
+
 if (!defined('IN_API')) {
     exit('Access Denied');
 }
 
-// 设置CORS - 允许所有来源
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-header('Vary: Origin');
-
-// 处理预检请求
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
-
-// 获取并清理GET数据
-$name = trim(strip_tags($_GET['name'] ?? ''));
-$email = trim(strip_tags($_GET['email'] ?? ''));
-$content = trim(strip_tags($_GET['content'] ?? ''));
-
-// 输入验证
-if (empty($name)) {
-    return_json(400, '请输入姓名');
-}
-
-if (empty($email)) {
-    return_json(400, '请输入邮箱');
-}
-
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    return_json(400, '邮箱格式不正确');
-}
-
-if (empty($content)) {
-    return_json(400, '请输入留言内容');
-}
-
-if (strlen($content) > 1000) {
-    return_json(400, '留言内容请限制在1000字以内');
-}
-
-// QQ邮箱SMTP配置
-$smtp = [
-    'host' => 'smtp.qq.com',
-    'port' => 465,
-    'username' => '76005434@qq.com', // 替换成你的QQ邮箱
-    'password' => 'ptrpywfowdxzbgec',  // 替换成你的QQ邮箱SMTP授权码
-    'from_email' => '76005434@qq.com', // 替换成你的QQ邮箱
-    'to_email' => 'wangxu_cn@icloud.com'
-];
-
-try {
-    $mail = new SMTPClient(
-        $smtp['host'],
-        $smtp['port'],
-        $smtp['username'],
-        $smtp['password']
-    );
-
-    $result = $mail->send(
-        $smtp['from_email'],
-        $smtp['to_email'],
-        "新的联系表单消息 - 来自 {$name}",
-        "姓名: {$name}\n邮箱: {$email}\n内容: \n{$content}\n\n发送时间: " . date('Y-m-d H:i:s')
-    );
-
-    if (!$result) {
-        throw new Exception($mail->getError() ?: '邮件发送失败');
-    }
-
-    return_json(200, '邮件发送成功');
-} catch (Exception $e) {
-    return_json(500, '邮件发送失败：' . $e->getMessage());
-}
-
+// 先定义SMTPClient类
 class SMTPClient
 {
     private $smtp_host;
@@ -90,7 +26,7 @@ class SMTPClient
     private $socket;
     private $error;
     private $debug = true;
-    private $timeout = 30;  // 设置超时时间为30秒
+    private $timeout = 30;
 
     public function __construct($host, $port, $user, $pass)
     {
@@ -109,7 +45,6 @@ class SMTPClient
 
     private function connect()
     {
-        // 设置更长的连接超时时间
         $this->socket = @fsockopen(
             "ssl://" . $this->smtp_host,
             $this->smtp_port,
@@ -124,7 +59,6 @@ class SMTPClient
             return false;
         }
 
-        // 设置socket读写超时
         stream_set_timeout($this->socket, $this->timeout);
 
         $response = fgets($this->socket, 515);
@@ -219,4 +153,76 @@ class SMTPClient
     {
         return $this->error ?: '未知错误';
     }
+}
+
+// 设置CORS
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+header('Vary: Origin');
+
+// 处理预检请求
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+// 获取并清理GET数据
+$name = trim(strip_tags($_GET['name'] ?? ''));
+$email = trim(strip_tags($_GET['email'] ?? ''));
+$content = trim(strip_tags($_GET['content'] ?? ''));
+
+// 输入验证
+if (empty($name)) {
+    return_json(400, '请输入姓名');
+}
+
+if (empty($email)) {
+    return_json(400, '请输入邮箱');
+}
+
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    return_json(400, '邮箱格式不正确');
+}
+
+if (empty($content)) {
+    return_json(400, '请输入留言内容');
+}
+
+if (strlen($content) > 1000) {
+    return_json(400, '留言内容请限制在1000字以内');
+}
+
+// QQ邮箱SMTP配置
+$smtp = [
+    'host' => 'smtp.qq.com',
+    'port' => 465,
+    'username' => '76005434@qq.com',
+    'password' => 'ptrpywfowdxzbgec',
+    'from_email' => '76005434@qq.com',
+    'to_email' => 'wangxu_cn@icloud.com'
+];
+
+try {
+    $mail = new SMTPClient(
+        $smtp['host'],
+        $smtp['port'],
+        $smtp['username'],
+        $smtp['password']
+    );
+
+    $result = $mail->send(
+        $smtp['from_email'],
+        $smtp['to_email'],
+        "新的联系表单消息 - 来自 {$name}",
+        "姓名: {$name}\n邮箱: {$email}\n内容: \n{$content}\n\n发送时间: " . date('Y-m-d H:i:s')
+    );
+
+    if (!$result) {
+        throw new Exception($mail->getError() ?: '邮件发送失败');
+    }
+
+    return_json(200, '邮件发送成功');
+} catch (Exception $e) {
+    return_json(500, '邮件发送失败：' . $e->getMessage());
 }
