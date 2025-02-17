@@ -245,5 +245,4 @@ class SMTP {
     public function getDebugInfo() {
         return $this->debug_info;
     }
-}
-?> 
+} 
