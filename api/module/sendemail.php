@@ -72,7 +72,8 @@ $result = $smtp->send(
 
 // 返回结果
 if ($result) {
-    return_json('200', '留言已成功发送');
+    $debug_info = $smtp->getDebugInfo(); // 获取调试信息
+    return_json('200', '留言已成功发送', array('debug' => $debug_info));
 } else {
     return_json('500', '发送失败：' . $smtp->getError());
 }

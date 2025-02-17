@@ -10,6 +10,7 @@ class SMTP {
     private $smtp_debug = false; //是否开启调试模式
     private $smtp_conn;    //SMTP连接句柄
     private $smtp_error;   //错误信息
+    private $debug_info = array(); // 存储调试信息
 
     /**
      * 构造函数
@@ -82,7 +83,7 @@ class SMTP {
 
         $response = fgets($this->smtp_conn, 515);
         if ($this->smtp_debug) {
-            echo "SERVER -> CLIENT: " . $response . "\n";
+            $this->debug_info[] = "SERVER -> CLIENT: " . $response;
         }
 
         return $this->checkResponse($response, 220);
@@ -195,14 +196,14 @@ class SMTP {
      */
     private function checkResponse($response, $code) {
         if ($this->smtp_debug) {
-            echo "SERVER -> CLIENT: " . $response . "\n";
+            $this->debug_info[] = "SERVER -> CLIENT: " . $response;
         }
 
         // 处理多行响应
         while (substr($response, 3, 1) == '-') {
             $response = fgets($this->smtp_conn, 515);
             if ($this->smtp_debug) {
-                echo "SERVER -> CLIENT: " . $response . "\n";
+                $this->debug_info[] = "SERVER -> CLIENT: " . $response;
             }
         }
 
@@ -235,6 +236,14 @@ class SMTP {
      */
     public function setDebug($debug) {
         $this->smtp_debug = $debug;
+    }
+
+    /**
+     * 获取调试信息
+     * @return array
+     */
+    public function getDebugInfo() {
+        return $this->debug_info;
     }
 }
 ?> 
