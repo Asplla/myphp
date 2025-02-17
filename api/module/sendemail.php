@@ -1,5 +1,13 @@
 <?php
-require_once __DIR__ . '/../function/function_common.php';  // 引入公共函数文件
+
+/**
+ *	Powered by wxss.fit
+ *  Email:minbbs@qq.com
+ */
+
+if (!defined('IN_API')) {
+    exit('Access Denied');
+}
 
 // 设置CORS - 允许所有来源
 header("Access-Control-Allow-Origin: *");
@@ -13,15 +21,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// 只允许POST请求
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    return_json(405, 'Method not allowed. Only POST is accepted.');
-}
-
-// 获取并清理POST数据
-$name = trim(strip_tags($_POST['name'] ?? ''));
-$email = trim(strip_tags($_POST['email'] ?? ''));
-$content = trim(strip_tags($_POST['content'] ?? ''));
+// 获取并清理GET数据
+$name = trim(strip_tags($_GET['name'] ?? ''));
+$email = trim(strip_tags($_GET['email'] ?? ''));
+$content = trim(strip_tags($_GET['content'] ?? ''));
 
 // 输入验证
 if (empty($name)) {
