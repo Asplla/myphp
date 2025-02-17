@@ -64,7 +64,15 @@ class SMTP {
      * @return bool
      */
     private function connect() {
-        $this->smtp_conn = fsockopen($this->smtp_host, $this->smtp_port, $errno, $errstr, 30);
+        // 使用SSL连接
+        $this->smtp_conn = fsockopen(
+            "ssl://" . $this->smtp_host,
+            $this->smtp_port,
+            $errno,
+            $errstr,
+            30
+        );
+        
         if (!$this->smtp_conn) {
             $this->smtp_error = "连接SMTP服务器失败: $errstr ($errno)";
             return false;

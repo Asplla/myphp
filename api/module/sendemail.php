@@ -1,5 +1,5 @@
 <?php
-require_once('../class/smtp.class.php');
+require_once(dirname(dirname(__FILE__)) . '/class/smtp.class.php');
 
 /**
  *	Powered by wxss.fit
