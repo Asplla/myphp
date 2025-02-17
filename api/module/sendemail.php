@@ -57,16 +57,6 @@ $smtp = [
     'to_email' => 'wangxu_cn@icloud.com'
 ];
 
-// 构建邮件内容
-$subject = "新的联系表单消息 - 来自 {$name}";
-$message = "
-姓名: {$name}
-邮箱: {$email}
-内容: 
-{$content}
-
-发送时间: " . date('Y-m-d H:i:s');
-
 try {
     $mail = new SMTPClient(
         $smtp['host'],
@@ -78,15 +68,15 @@ try {
     $result = $mail->send(
         $smtp['from_email'],
         $smtp['to_email'],
-        $subject,
-        $message
+        "新的联系表单消息 - 来自 {$name}",
+        "姓名: {$name}\n邮箱: {$email}\n内容: \n{$content}\n\n发送时间: " . date('Y-m-d H:i:s')
     );
 
-    if ($result) {
-        return_json(200, '邮件发送成功');
-    } else {
-        throw new Exception($mail->getError());
+    if (!$result) {
+        throw new Exception($mail->getError() ?: '邮件发送失败');
     }
+
+    return_json(200, '邮件发送成功');
 } catch (Exception $e) {
     return_json(500, '邮件发送失败：' . $e->getMessage());
 }
@@ -160,6 +150,6 @@ class SMTPClient
 
     public function getError()
     {
-        return $this->error;
+        return $this->error ?: '未知错误';
     }
 }
