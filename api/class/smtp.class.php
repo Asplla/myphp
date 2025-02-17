@@ -35,6 +35,8 @@ class SMTP {
      * @return bool
      */
     public function send($to, $subject, $body, $from, $fromName = '') {
+        $this->smtp_user = $from; // 确保smtp_user与发件人一致
+
         if (!$this->connect()) {
             return false;
         }
@@ -152,14 +154,37 @@ class SMTP {
             return false;
         }
 
-        $message = "Subject: $subject\r\n";
+        // 构建完整的邮件头
+        $message = "MIME-Version: 1.0\r\n";
+        $message .= "From: " . $this->formatAddress($this->smtp_user) . "\r\n";
+        $message .= "To: " . $this->formatAddress($this->smtp_user) . "\r\n";
+        $message .= "Subject: =?UTF-8?B?" . base64_encode($subject) . "?=\r\n";
+        $message .= "Date: " . date("r") . "\r\n";
         $message .= "Content-Type: text/html; charset=UTF-8\r\n";
+        $message .= "Content-Transfer-Encoding: base64\r\n";
         $message .= "\r\n";
-        $message .= $body;
+        $message .= chunk_split(base64_encode($body));
         $message .= "\r\n.\r\n";
 
         fputs($this->smtp_conn, $message);
         return $this->checkResponse(fgets($this->smtp_conn, 515), 250);
+    }
+
+    /**
+     * 格式化邮件地址
+     * @param string $address 邮件地址
+     * @param string $name 显示名称
+     * @return string
+     */
+    private function formatAddress($address, $name = '') {
+        if (empty($name)) {
+            return "<$address>";
+        }
+        // 如果显示名称包含非ASCII字符，进行编码
+        if (preg_match('/[^\x20-\x7E]/', $name)) {
+            $name = '=?UTF-8?B?' . base64_encode($name) . '?=';
+        }
+        return "$name <$address>";
     }
 
     /**
