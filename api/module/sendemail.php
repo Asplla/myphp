@@ -126,7 +126,7 @@ class SMTPClient
 // 获取并清理POST数据
 $name = trim(strip_tags($_POST['name'] ?? ''));
 $email = trim(strip_tags($_POST['email'] ?? ''));
-$message = trim(strip_tags($_POST['message'] ?? ''));
+$message = trim(strip_tags($_POST['content'] ?? ''));
 
 // 输入验证
 $errors = [];
