@@ -125,11 +125,21 @@ class SMTPClient
         return true;
     }
 
+    private function getFullResponse()
+    {
+        $response = '';
+        while ($line = fgets($this->socket, 515)) {
+            $response .= $line;
+            if (substr($line, 3, 1) == ' ') break;
+        }
+        return $response;
+    }
+
     private function sendCommand($command, $expectedCode)
     {
         $this->log("发送命令: " . $command);
         fputs($this->socket, $command . "\r\n");
-        $response = fgets($this->socket, 515);
+        $response = $this->getFullResponse();
         $this->log("服务器响应: " . $response);
 
         if (substr($response, 0, 3) != $expectedCode) {
@@ -145,13 +155,20 @@ class SMTPClient
             return false;
         }
 
-        // 记录发送过程
         $this->log("开始发送邮件...");
         $this->log("发件人: " . $from);
         $this->log("收件人: " . $to);
 
+        // 读取欢迎消息
+        $this->getFullResponse();
+
+        // 发送EHLO命令并处理多行响应
+        if (!$this->sendCommand("EHLO " . gethostname(), '250')) {
+            return false;
+        }
+
+        // 继续发送其他命令
         if (
-            !$this->sendCommand("EHLO " . $_SERVER['HTTP_HOST'], '250') ||
             !$this->sendCommand("AUTH LOGIN", '334') ||
             !$this->sendCommand(base64_encode($this->smtp_user), '334') ||
             !$this->sendCommand(base64_encode($this->smtp_pass), '235') ||
