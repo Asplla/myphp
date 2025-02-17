@@ -25,13 +25,29 @@ $content = trim(strip_tags($_POST['content'] ?? ''));
 
 // 输入验证
 $errors = [];
-if (empty($name)) $errors[] = "姓名不能为空";
-if (empty($email)) $errors[] = "邮箱不能为空";
-if (empty($content)) $errors[] = "内容不能为空";
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = "邮箱格式不正确";
+if (empty($name)) {
+    $errors['name'] = "请输入您的姓名";
+}
+if (empty($email)) {
+    $errors['email'] = "请输入您的邮箱地址";
+} elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $errors['email'] = "邮箱格式不正确，请检查";
+}
+if (empty($content)) {
+    $errors['content'] = "请输入留言内容";
+} elseif (strlen($content) > 1000) {
+    $errors['content'] = "留言内容过长，请限制在1000字以内";
+}
 
 if (!empty($errors)) {
-    return_json(400, '验证失败', ['errors' => $errors]);
+    return_json(400, '请检查您的输入', [
+        'errors' => $errors,
+        'fields' => [
+            'name' => $name,
+            'email' => $email,
+            'content' => $content
+        ]
+    ]);
 }
 
 // QQ邮箱SMTP配置
