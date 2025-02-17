@@ -91,8 +91,8 @@ class SMTP {
      * @return bool
      */
     private function authenticate() {
-        // 发送HELO命令
-        fputs($this->smtp_conn, "HELO " . $this->smtp_host . "\r\n");
+        // 发送EHLO命令
+        fputs($this->smtp_conn, "EHLO " . $this->smtp_host . "\r\n");
         if (!$this->checkResponse(fgets($this->smtp_conn, 515), 250)) {
             return false;
         }
@@ -171,6 +171,14 @@ class SMTP {
     private function checkResponse($response, $code) {
         if ($this->smtp_debug) {
             echo "SERVER -> CLIENT: " . $response . "\n";
+        }
+
+        // 处理多行响应
+        while (substr($response, 3, 1) == '-') {
+            $response = fgets($this->smtp_conn, 515);
+            if ($this->smtp_debug) {
+                echo "SERVER -> CLIENT: " . $response . "\n";
+            }
         }
 
         if (substr($response, 0, 3) != $code) {
