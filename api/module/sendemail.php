@@ -89,7 +89,8 @@ class SMTPClient
     private $smtp_pass;
     private $socket;
     private $error;
-    private $debug = true;  // 开启调试模式
+    private $debug = true;
+    private $timeout = 30;  // 设置超时时间为30秒
 
     public function __construct($host, $port, $user, $pass)
     {
@@ -108,12 +109,24 @@ class SMTPClient
 
     private function connect()
     {
-        $this->socket = @fsockopen("ssl://" . $this->smtp_host, $this->smtp_port, $errno, $errstr, 30);
+        // 设置更长的连接超时时间
+        $this->socket = @fsockopen(
+            "ssl://" . $this->smtp_host,
+            $this->smtp_port,
+            $errno,
+            $errstr,
+            $this->timeout
+        );
+
         if (!$this->socket) {
             $this->error = "连接失败: $errstr ($errno)";
             $this->log($this->error);
             return false;
         }
+
+        // 设置socket读写超时
+        stream_set_timeout($this->socket, $this->timeout);
+
         $response = fgets($this->socket, 515);
         $this->log("连接响应: " . $response);
 
