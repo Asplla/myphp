@@ -55,45 +55,58 @@ $body = <<<EOT
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>访客留言通知</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif; background-color: #f6f6f6;">
-    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: white; border-radius: 5px; padding: 20px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
-            <!-- Logo 区域 -->
-            <div style="text-align: center; margin-bottom: 20px;">
-                <img src="https://wxss.fit/logo.png" alt="Logo" style="height: 40px;">
-            </div>
-            
-            <!-- 标题 -->
-            <h1 style="color: #000; font-size: 24px; font-weight: 600; margin: 0 0 20px;">新的访客留言</h1>
-            
-            <!-- 内容区域 -->
-            <div style="background: #f9f9f9; border-radius: 5px; padding: 20px; margin-bottom: 20px;">
-                <div style="margin-bottom: 15px;">
-                    <p style="color: #666; font-size: 14px; margin: 0 0 5px;">访客姓名</p>
-                    <p style="color: #000; font-size: 16px; margin: 0;">{$name}</p>
-                </div>
-                
-                <div style="margin-bottom: 15px;">
-                    <p style="color: #666; font-size: 14px; margin: 0 0 5px;">访客邮箱</p>
-                    <p style="color: #000; font-size: 16px; margin: 0;">{$email}</p>
-                </div>
-                
-                <div>
-                    <p style="color: #666; font-size: 14px; margin: 0 0 5px;">留言内容</p>
-                    <p style="color: #000; font-size: 16px; margin: 0; white-space: pre-wrap;">{$content}</p>
-                </div>
-            </div>
-            
-            <!-- 时间戳 -->
-            <p style="color: #666; font-size: 14px; margin: 0; text-align: center;">
-                此邮件由系统自动发送于 " . date('Y-m-d H:i:s') . "
-            </p>
+<body style="margin: 0; padding: 0; background-color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+    <div style="max-width: 580px; margin: 0 auto; padding: 45px 30px 40px;">
+        <!-- 标题 -->
+        <h1 style="margin: 0 0 30px; text-align: center; color: #111111; font-size: 24px; font-weight: 500;">
+            新的访客留言
+        </h1>
+
+        <!-- 内容区域 -->
+        <div style="margin-bottom: 30px;">
+            <table style="width: 100%; border-spacing: 0; border-collapse: separate; border: 1px solid #eaeaea; border-radius: 5px; overflow: hidden;">
+                <tr>
+                    <td style="padding: 12px 20px; background: #fafafa; font-size: 13px; color: #666666; width: 100px;">
+                        访客姓名
+                    </td>
+                    <td style="padding: 12px 20px; font-size: 14px; color: #111111;">
+                        {$name}
+                    </td>
+                </tr>
+                <tr style="border-top: 1px solid #eaeaea;">
+                    <td style="padding: 12px 20px; background: #fafafa; font-size: 13px; color: #666666; width: 100px;">
+                        访客邮箱
+                    </td>
+                    <td style="padding: 12px 20px; font-size: 14px; color: #111111;">
+                        {$email}
+                    </td>
+                </tr>
+                <tr style="border-top: 1px solid #eaeaea;">
+                    <td style="padding: 12px 20px; background: #fafafa; font-size: 13px; color: #666666; width: 100px;">
+                        留言内容
+                    </td>
+                    <td style="padding: 12px 20px; font-size: 14px; color: #111111; white-space: pre-wrap; line-height: 1.6;">
+                        {$content}
+                    </td>
+                </tr>
+            </table>
         </div>
-        
+
+        <!-- 时间信息 -->
+        <div style="margin-bottom: 30px; text-align: center; font-size: 13px; color: #666666;">
+            发送时间：" . date('Y-m-d H:i:s') . "
+        </div>
+
+        <!-- 分隔线 -->
+        <div style="height: 1px; background: #eaeaea; margin: 30px 0;"></div>
+
         <!-- 页脚 -->
-        <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
-            <p style="margin: 5px 0;">© " . date('Y') . " WXSS.FIT. All rights reserved.</p>
-            <p style="margin: 5px 0;">此邮件由系统自动发送，请勿直接回复</p>
+        <div style="text-align: center;">
+            <img src="https://wxss.fit/logo.png" alt="Logo" style="height: 20px; margin-bottom: 15px;">
+            <div style="font-size: 12px; color: #666666; line-height: 1.5;">
+                <div>© " . date('Y') . " WXSS.FIT</div>
+                <div style="color: #999999;">此邮件由系统自动发送，请勿直接回复</div>
+            </div>
         </div>
     </div>
 </body>
