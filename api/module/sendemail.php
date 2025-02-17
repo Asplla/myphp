@@ -89,6 +89,7 @@ class SMTPClient
     private $smtp_pass;
     private $socket;
     private $error;
+    private $debug = true;  // 开启调试模式
 
     public function __construct($host, $port, $user, $pass)
     {
@@ -98,22 +99,44 @@ class SMTPClient
         $this->smtp_pass = $pass;
     }
 
+    private function log($message)
+    {
+        if ($this->debug) {
+            error_log("[SMTP Debug] " . $message);
+        }
+    }
+
     private function connect()
     {
         $this->socket = @fsockopen("ssl://" . $this->smtp_host, $this->smtp_port, $errno, $errstr, 30);
         if (!$this->socket) {
             $this->error = "连接失败: $errstr ($errno)";
+            $this->log($this->error);
             return false;
         }
         $response = fgets($this->socket, 515);
-        return substr($response, 0, 3) == '220';
+        $this->log("连接响应: " . $response);
+
+        if (substr($response, 0, 3) != '220') {
+            $this->error = "SMTP服务器连接错误: " . $response;
+            $this->log($this->error);
+            return false;
+        }
+        return true;
     }
 
     private function sendCommand($command, $expectedCode)
     {
+        $this->log("发送命令: " . $command);
         fputs($this->socket, $command . "\r\n");
         $response = fgets($this->socket, 515);
-        return substr($response, 0, 3) == $expectedCode;
+        $this->log("服务器响应: " . $response);
+
+        if (substr($response, 0, 3) != $expectedCode) {
+            $this->error = "命令失败 ($command): " . $response;
+            return false;
+        }
+        return true;
     }
 
     public function send($from, $to, $subject, $body)
@@ -121,6 +144,11 @@ class SMTPClient
         if (!$this->connect()) {
             return false;
         }
+
+        // 记录发送过程
+        $this->log("开始发送邮件...");
+        $this->log("发件人: " . $from);
+        $this->log("收件人: " . $to);
 
         if (
             !$this->sendCommand("EHLO " . $_SERVER['HTTP_HOST'], '250') ||
@@ -131,6 +159,7 @@ class SMTPClient
             !$this->sendCommand("RCPT TO:<{$to}>", '250') ||
             !$this->sendCommand("DATA", '354')
         ) {
+            $this->log("SMTP命令序列失败");
             return false;
         }
 
@@ -139,13 +168,21 @@ class SMTPClient
         $headers .= "Subject: {$subject}\r\n";
         $headers .= "Content-Type: text/plain; charset=UTF-8\r\n\r\n";
 
+        $this->log("发送邮件内容...");
         fputs($this->socket, $headers . $body . "\r\n.\r\n");
         $response = fgets($this->socket, 515);
+        $this->log("发送完成响应: " . $response);
 
         $this->sendCommand("QUIT", '221');
         fclose($this->socket);
 
-        return substr($response, 0, 3) == '250';
+        if (substr($response, 0, 3) != '250') {
+            $this->error = "发送失败: " . $response;
+            return false;
+        }
+
+        $this->log("邮件发送成功");
+        return true;
     }
 
     public function getError()
