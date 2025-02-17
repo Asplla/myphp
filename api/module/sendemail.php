@@ -57,29 +57,90 @@ $body = <<<EOT
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <meta name="supported-color-schemes" content="light dark">
     <title>New Message Notification</title>
     <style>
+        :root {
+            color-scheme: light dark;
+            supported-color-schemes: light dark;
+        }
+        
         @media (prefers-color-scheme: dark) {
-            body { background: #000 !important; }
-            .email-wrapper { background: #000 !important; }
+            .body { 
+                background-color: #000000 !important;
+                color: #ffffff !important;
+            }
+            .email-wrapper { 
+                background-color: #000000 !important;
+                color: #ffffff !important;
+            }
             .email-content { 
-                background: #111 !important; 
+                background-color: #1c1c1e !important; 
                 box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
+                color: #ffffff !important;
             }
-            .title { color: #fff !important; }
-            .text-primary { color: #fff !important; }
-            .text-secondary { color: #888 !important; }
+            .title { 
+                color: #ffffff !important;
+            }
+            .text-primary { 
+                color: #ffffff !important;
+            }
+            .text-secondary { 
+                color: #98989d !important;
+            }
             .message-box { 
-                background: #1a1a1a !important;
-                border: 1px solid #333 !important;
+                background-color: #2c2c2e !important;
+                border: 1px solid #333333 !important;
+                color: #ffffff !important;
             }
-            .divider { border-color: #333 !important; }
-            .vercel-logo { color: #fff !important; }
-            a { color: #3291ff !important; }
+            .divider { 
+                border-color: #333333 !important;
+            }
+            .vercel-logo { 
+                color: #ffffff !important;
+                fill: #ffffff !important;
+            }
+            a { 
+                color: #0a84ff !important;
+            }
+            [data-ogsc] .body { 
+                background-color: #000000 !important;
+                color: #ffffff !important;
+            }
+            [data-ogsc] .email-wrapper { 
+                background-color: #000000 !important;
+            }
+            [data-ogsc] .email-content { 
+                background-color: #1c1c1e !important;
+            }
+            [data-ogsc] .title { 
+                color: #ffffff !important;
+            }
+            [data-ogsc] .text-primary { 
+                color: #ffffff !important;
+            }
+            [data-ogsc] .text-secondary { 
+                color: #98989d !important;
+            }
+            [data-ogsc] .message-box { 
+                background-color: #2c2c2e !important;
+                border-color: #333333 !important;
+            }
+            [data-ogsc] .divider { 
+                border-color: #333333 !important;
+            }
+            [data-ogsc] .vercel-logo { 
+                color: #ffffff !important;
+                fill: #ffffff !important;
+            }
+            [data-ogsc] a { 
+                color: #0a84ff !important;
+            }
         }
     </style>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #fafafa;">
+<body class="body" style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #fafafa;">
     <div class="email-wrapper" style="max-width: 600px;margin: 0 auto;padding: 45px 20px;">
         <div style="margin-bottom: 30px; text-align: left;">
             <svg class="vercel-logo" height="20" viewBox="0 0 284 65" fill="currentColor" style="color: #000;">
