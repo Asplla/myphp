@@ -51,9 +51,9 @@ if (strlen($content) > 1000) {
 $smtp = [
     'host' => 'smtp.qq.com',
     'port' => 465,
-    'username' => '你的QQ邮箱@qq.com', // 替换成你的QQ邮箱
-    'password' => '你的授权码',  // 替换成你的QQ邮箱SMTP授权码
-    'from_email' => '你的QQ邮箱@qq.com', // 替换成你的QQ邮箱
+    'username' => '76005434@qq.com', // 替换成你的QQ邮箱
+    'password' => 'ptrpywfowdxzbgec',  // 替换成你的QQ邮箱SMTP授权码
+    'from_email' => '76005434@qq.com', // 替换成你的QQ邮箱
     'to_email' => 'wangxu_cn@icloud.com'
 ];
 
