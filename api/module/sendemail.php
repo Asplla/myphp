@@ -9,30 +9,16 @@ if (ob_get_level()) ob_end_clean();
 // 加载配置文件
 $smtp_config = require __DIR__ . '/../config/smtp_config.php';
 
-// 设置CORS
-$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if (in_array($origin, $smtp_config['allowed_origins'])) {
-    header("Access-Control-Allow-Origin: *");
-    header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
-    header("Access-Control-Allow-Headers: Content-Type");
-    header("Access-Control-Allow-Credentials: true");
-    header('Vary: Origin');  // 重要：告诉浏览器响应会根据Origin变化
-}
+// 设置CORS - 允许所有来源
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+header('Vary: Origin');
 
 // 处理预检请求
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    if (in_array($origin, $smtp_config['allowed_origins'])) {
-        http_response_code(200);
-        exit();
-    } else {
-        http_response_code(403);
-        exit();
-    }
-}
-
-// 检查是否是允许的来源
-if (!in_array($origin, $smtp_config['allowed_origins'])) {
-    return_json('403', 'Origin not allowed');
+    http_response_code(200);
+    exit();
 }
 
 // 只允许POST请求
