@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../function/function_common.php';  // 引入公共函数文件
+
 // 设置CORS - 允许所有来源
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
@@ -147,18 +149,4 @@ class SMTPClient
     {
         return $this->error;
     }
-}
-
-function return_json($code, $message, $data = null)
-{
-    header('Content-Type: application/json');
-    $response = [
-        'code' => $code,
-        'message' => $message
-    ];
-    if ($data !== null) {
-        $response['data'] = $data;
-    }
-    echo json_encode($response);
-    exit();
 }
