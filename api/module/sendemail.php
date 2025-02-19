@@ -11,6 +11,11 @@ if (!defined('IN_API')) {
     exit('Access Denied');
 }
 
+// Check if request method is POST
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    return_json('405', 'Method not allowed. Please use POST request.');
+}
+
 // Initialize SMTP class
 $smtp = new SMTP(
     $smtp_config['host'],
@@ -22,10 +27,10 @@ $smtp = new SMTP(
 // Disable debug mode in production
 $smtp->setDebug(false);
 
-// Get GET data for testing
-$name = isset($_GET['name']) ? trim($_GET['name']) : '';
-$email = isset($_GET['email']) ? trim($_GET['email']) : '';
-$content = isset($_GET['content']) ? trim($_GET['content']) : '';
+// Get POST data
+$name = isset($_POST['name']) ? trim($_POST['name']) : '';
+$email = isset($_POST['email']) ? trim($_POST['email']) : '';
+$content = isset($_POST['content']) ? trim($_POST['content']) : '';
 
 // Validate each field
 if (empty($name)) {
